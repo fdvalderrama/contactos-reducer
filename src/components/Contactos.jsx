@@ -10,15 +10,25 @@ const init = () => {
 };
 
 const Contactos = () => {
-  //Creamos el hook useReducer para poder utilizar el ReducerContactos pasandole un estado inicial
+  // Creamos el hook useReducer para manejar el estado de los contactos
   const [state, dispatch] = useReducer(contactosReducer, [], init);
 
+  // Estado para manejar la vista del formulario
   const [formView, setFormView] = useState(false);
 
-  //Agregando un useEffect para guardar en el localStorage
+  // Estado para manejar el contacto seleccionado para editar
+  const [selectedContact, setSelectedContact] = useState(null);
+
+  // Efecto para guardar los contactos en localStorage cuando cambie el estado
   useEffect(() => {
     localStorage.setItem("contactos", JSON.stringify(state));
   }, [state]);
+
+  // Función para manejar el cierre del formulario
+  const handleCloseForm = () => {
+    setFormView(false);
+    setSelectedContact(null); // Limpiamos el contacto seleccionado al cerrar el formulario
+  };
 
   return (
     <div className="container mt-3">
@@ -28,8 +38,21 @@ const Contactos = () => {
       >
         {!formView ? "Agregar Contacto" : "Cerrar formulario"}
       </button>
-      {formView && <Formulario dispatch={dispatch} />}
-      <TablaContactos contactos={state} dispatch={dispatch} />
+      {formView && (
+        <Formulario
+          dispatch={dispatch}
+          selectedContact={selectedContact}
+          handleCloseForm={handleCloseForm}
+        />
+      )}
+      <TablaContactos
+        contactos={state}
+        dispatch={dispatch}
+        setSelectedContact={(contacto) => {
+          setSelectedContact(contacto);
+          setFormView(true); // Mostramos el formulario cuando se selecciona un contacto
+        }}
+      />
     </div>
   );
 };
